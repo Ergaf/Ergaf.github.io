@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: auto;
+            background-color: azure;
+            padding: 20px;
+            position: relative;
+        }
+        .header {
+            border: black 1px solid;
+            border-radius: 10px;
+            width: 500px;
+            height: 50px;
+            background-color: antiquewhite;
+            margin: auto;
+            display: flex;
+        }
+        .visites {
+            border: black 1px solid;
+            width: 1000px;
+            height: 500px;
+            background-color: antiquewhite;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+        .create {
+            transition: color 0.5s;
+            color: lightslategrey;
+            padding: 15px;
+        }
+        .logo {
+            margin-right: 284px;
+        }
+        .button:hover {
+            cursor: pointer;
+            transition: color 0.5s;
+            color: red;
+        }
+        .modal-window {
+            position: fixed;
+            width: 400px;
+            background-color: slategrey;
+            left:50%; margin-left:-200px;
+            top:50%; margin-top:-150px;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 13px 13px 41px 2px rgba(0,0,0,1);
+        }
+        .active-modal {
+            display: block;
+            opacity: 0.9;
+        }
+        .doctors {
+            margin: 20px;
+            width: 200px;
+            background-color: burlywood;
+            margin-bottom: 10;
+        }
+        .cancel-button {
+            position: fixed;
+            font-size: 20px;
+            color: red;
+            left: 50%;
+            margin-left: 170px;
+            top: 50%;
+            margin-top: -146px;
+        }
+        .cancel-button:hover {
+            color: azure;
+            cursor: pointer;
+        }
+        input {
+            margin-top: 10px;
+            width: 250px;
+            background-color: burlywood;
+            margin-left: 20px;
+            border: azure solid 2px;
+            display: none;
+        }
+        input:focus {
+            border: midnightblue solid 2px;
+        }
+        .clear {
+            border: red solid 2px;
+        }
+        .button-accept {
+            width: 100px;
+            height: 20px;
+            background-color: burlywood;
+            border: gold;
+            border-radius: 5px;
+            margin: auto;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .button-accept:hover {
+            background-color: azure;
+            cursor: pointer;
+        }
+        .visible {
+            display: block;
+        }
+        .container-for-current-visit {
+            width: 300px;
+            border: gold 2px solid;
+            border-radius: 10px;
+            border-top: gold 20px solid;
+            padding-left: 10px;
+            background-color: grey;
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .cancel {
+            position: absolute;
+            top: -18px;
+            left: 293px;
+            color: red;
+        }
+        .cancel:hover {
+            color: azure;
+            cursor: pointer;
+        }
+        .moar {
+            text-align: center;
+            color: darkred;
+            cursor: pointer;
+        }
+        .moar:hover {
+            color: red;
+        }
+        .drag {
+            position: absolute;
+            width: 289px;
+            top: -19px;
+            left: 1px;
+            height: 18px;
+        }
+        .invisitvisible {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" onmousedown="return false" onselectstart="return false">
+        <div class="header">
+            <div class="create logo">logo?</div>
+            <div class="create button">Создать карточку</div>
+        </div>
+        <div class="visites"></div>
+    </div>
+    <div class="modal-window">
+        <select class="doctors">
+            <option>Кардиолог</option>
+            <option>Стоматолог</option>
+            <option>Терапевт</option>
+        </select>
+        <form action="">
+            <input class="inputs visible destiny" id="all" type="text" placeholder="цель визита">
+            <input class="inputs visible pressure" id="kardio" type="text" placeholder="обычное давление">
+            <input class="inputs visible index-mass" id="kardio" type="text" placeholder="индекс массы тела">
+            <input class="inputs visible diseases" id="kardio" type="text" placeholder="перенесенные заболевания сердечно-сосудистой системы">
+            <input class="inputs visible your-age" id="ter-kard" type="text" placeholder="возраст">
+            <input class="inputs visible fio" id="all" type="text" placeholder="ФИО">
+            <input class="inputs last-date" id="stom" type="text" placeholder="дата последнего посещения">
+            <div class="button-accept">Create</div>
+        </form>
+        <div class="cancel-button">X</div>
+    </div>
+
+
+
+<script>
+    class visit {
+        constructor (visitName, fio, destiny) {
+            this._fio = fio;
+            this._date = new Date().toLocaleString();
+            this._visitName = visitName;
+            this._destiny = destiny;
+        }
+        createVisitContainer(itemHtml) {
+            let visitContainer = document.querySelector('.visites');
+            let visitItem = document.createElement('div');
+            visitItem.classList.add('container-for-current-visit');
+            visitContainer.appendChild(visitItem);
+            visitItem.onmousedown = this.dragAndDrop.bind( this);
+            visitItem.innerHTML = itemHtml;
+        }
+
+        dragAndDrop(e) {
+            let drag = e.target.closest('.container-for-current-visit');
+
+            let coords = this.getCoords(drag);
+            let shiftX = e.pageX - coords.left;
+            let shiftY = e.pageY - coords.top;
+
+            drag.style.position = 'absolute';
+            moveAt(e);
+
+            drag.style.zIndex = 1000;
+
+            function moveAt(e) {
+                drag.style.left = e.pageX - shiftX + 'px';
+                drag.style.top = e.pageY - shiftY + 'px';
+            }
+
+            document.onmousemove = function(e) {
+                moveAt(e);
+            };
+
+            drag.onmouseup = function() {
+                document.onmousemove = null;
+                drag.onmouseup = null;
+            };
+        }
+
+        getCoords(elem) {
+            let box = elem.getBoundingClientRect();
+            return {
+                top: box.top + pageYOffset,
+                left: box.left + pageXOffset
+            };
+        }
+    }
+
+    class visitInKard extends visit {
+        constructor (visitName, fio, destiny, pressure, indexMass, diseases, age, doctorname) {
+            super (visitName, fio, destiny);
+            this._pressure = pressure;
+            this._indexMass = indexMass;
+            this._diseases = diseases;
+            this._age = age;
+            this.doctorname = doctorname
+
+        }
+        createVisitContainer() {
+            let innerHTML = `
+                                        <p>${this._visitName}</p>
+                                        <p>${this._fio}</p>
+                                        <p>${this.doctorname}</p>
+                                        <p class="invisitvisible">${this._date}</p>
+                                        <p class="invisitvisible">${this._destiny}</p>
+                                        <p class="invisitvisible">${this._pressure}</p>
+                                        <p class="invisitvisible">${this._indexMass}</p>
+                                        <p class="invisitvisible">${this._diseases}</p>
+                                        <p class="invisitvisible">${this._age}</p>
+                                        <div class="cancel">X</div>
+                                        <div class="moar">Показать больше</div>
+                                        <div class="drag"></div>
+                                    `;
+            super.createVisitContainer(innerHTML );
+        }
+    }
+
+
+    class visitInStom extends visit {
+        constructor (visitName, fio, destiny, lastdate, doctorname) {
+            super (visitName, fio, destiny);
+            this._lastdate = lastdate;
+            this._doctorname = doctorname
+        }
+        createVisitContainer() {
+            let innerHTML = `
+                                           <p>${this._visitName}</p>
+                                        <p>${this._fio}</p>
+                                        <p>${this._doctorname}</p>
+                                        <p class="invisitvisible">${this._date}</p>
+                                        <p class="invisitvisible">${this._destiny}</p>
+                                        <p class="invisitvisible">${this._lastdate}</p>
+                                        <div class="cancel">X</div>
+                                        <div class="moar">Показать больше</div>
+                                        <div class="drag"></div>
+                                    `;
+            super.createVisitContainer(innerHTML);
+        }
+    }
+
+    class visitInTer extends visit {
+        constructor (visitName, fio, destiny, age, doctorname) {
+            super (visitName, fio, destiny);
+            this._age = age;
+            this._doctorname = doctorname
+        }
+        createVisitContainer() {
+            let innerHTML = `
+                                           <p>${this._visitName}</p>
+                                        <p>${this._fio}</p>
+                                        <p>${this._doctorname}</p>
+                                        <p class="invisitvisible">${this._date}</p>
+                                        <p class="invisitvisible">${this._destiny}</p>
+                                        <p class="invisitvisible">${this._age}</p>
+                                        <div class="cancel">X</div>
+                                        <div class="moar">Показать больше</div>
+                                        <div class="drag"></div>
+                                    `;
+            super.createVisitContainer(innerHTML);
+        }
+    }
+
+    const buttonForCreate = document.querySelector('.button');
+    let doctors = document.querySelector('.doctors');
+    let inputsAll = document.querySelectorAll('.inputs');
+    document.querySelector('.container').addEventListener('click', function () {
+
+        if(event.target === buttonForCreate) {
+            document.querySelector('.modal-window').classList.add('active-modal')
+        }
+        else {
+            document.querySelector('.modal-window').classList.remove('active-modal');
+        }
+    });
+    document.querySelector('.cancel-button').addEventListener('click', function () {
+        document.querySelector('.modal-window').classList.remove('active-modal');
+        document.querySelectorAll('.inputs')
+            .forEach(function (item) {
+                item.value = "";
+            })
+    });
+    doctors.addEventListener('click', function () {
+        let doctorsSelect = doctors.options[doctors.selectedIndex].text;
+        switch (doctorsSelect) {
+            case 'Кардиолог':
+                inputsAll.forEach(function (item) {
+                    if (item.id === 'all' || item.id === 'kardio' || item.id === 'ter-kard') {
+                        item.classList.add('visible')
+                    }
+                    else {
+                        item.classList.remove('visible')
+                    }
+                });
+                break;
+            case 'Стоматолог':
+                inputsAll.forEach(function (item) {
+                    if (item.id === 'all' || item.id === 'stom') {
+                        item.classList.add('visible')
+                    }
+                    else {
+                        item.classList.remove('visible')
+                    }
+                });
+                break;
+            case 'Терапевт':
+                inputsAll.forEach(function (item) {
+                    if (item.id === 'all' || item.id === 'ter-kard') {
+                        item.classList.add('visible')
+                    }
+                    else {
+                        item.classList.remove('visible')
+                    }
+                });
+                break;
+        }
+    });
+    document.querySelector('.button-accept').addEventListener('click', function () {
+        document.querySelectorAll('.visible').forEach(function (item) {
+            if (item.value === ''){
+                item.classList.add('clear');
+            }
+            else {
+                item.classList.remove('clear');
+            }
+        });
+        if (document.querySelector('.clear')=== null) {
+            document.querySelector('.modal-window').classList.remove('active-modal');
+            let visitname = document.querySelector('.doctors').options[doctors.selectedIndex].text;
+            let current = document.querySelectorAll('.visible');
+            let vis = [];
+            current.forEach(function (item) {
+                vis.push(item.value)
+            });
+
+            switch (visitname) {
+                case 'Кардиолог':
+                    new visitInKard(`визит к ${visitname}у`,vis[5],vis[0],vis[1],vis[2],vis[3],vis[4],visitname).createVisitContainer();
+                    break;
+                case 'Стоматолог':
+                    new visitInStom(`визит к ${visitname}у`,vis[1],vis[0],vis[2],visitname).createVisitContainer();
+                    break;
+
+                case 'Терапевт':
+                    new visitInTer(`визит к ${visitname}у`,vis[2],vis[0],vis[1],visitname).createVisitContainer();
+                    break;
+
+            }
+        }
+    });
+
+    document.querySelector('.visites').addEventListener('click', function (event) {
+        if (event.target.className === 'cancel') {
+            event.target.closest('.container-for-current-visit').remove()
+        }
+        if (event.target.className === 'moar') {
+            event.target.parentNode.querySelectorAll('.invisitvisible').forEach(function (item) {
+                item.classList.remove('invisitvisible');
+            });
+            event.target.classList.add('invisitvisible');
+        }
+    });
+
+    // commit
+
+
+
+
+</script>
+</body>
+</html>
